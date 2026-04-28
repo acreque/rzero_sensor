@@ -22,6 +22,9 @@ void read_and_send_occupant_count()
 
 ## Key Design Decisions
 
+<img src="CrequeDesignFigure.png" alt="Alt Text" width="600">
+
+
 ### 1. Decouple acquisition from transmission
 
 `read_and_send_occupant_count()` always drops readings in a queue  as they become avaiable. Then attempts to transmit across network and drain queue. If the network is unavailable, the function returns immediately without draining the queue and untransmitted readings are safely retained. No readings are lost on transient network outages.
