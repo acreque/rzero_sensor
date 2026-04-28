@@ -9,12 +9,12 @@
  * 2. The code provided is syntactially correct C code, but this program will 
  *    not compile and run due to missing headers, variable declarations, and 
  *    stubbed-out functions. 
- * 3. Queue decouples acquisition from transmission. The worker function 
- *    read_and_send_occupant_count() always drops data in the queue first, 
- *    followed by best-effort transmission of batches from the queue front. 
- *    Transmission is best-effort; nothing is lost on network failure.
- * 4. Queue is a circular buffer, static allocation — no heap fragmentation, 
- *    no malloc.
+ * 3. A reading queue decouples acquisition from transmission. The worker 
+ *    function read_and_send_occupant_count() always drops data in the queue 
+ *    first, followed by best-effort transmission of batches from the queue 
+ *.   front. Transmission is best-effort; nothing is lost on network failure.
+ * 4. The queue ReadingQueue_t is a circular buffer, static allocation — no 
+ *    heap fragmentation, no malloc.
  * 5. Oldest-drop policy when queue is full. Assume recent occupancy data is 
  *    more actionable than stale readings.
  * 6. Commit-after-confirm. queue_find_batch() copies without advancing tail.
