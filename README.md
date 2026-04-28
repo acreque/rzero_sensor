@@ -22,7 +22,7 @@ void read_and_send_occupant_count()
 
 ## Key Design Decisions
 
-<img src="CrequeDesignFigure.png" alt="Alt Text" width="600">
+<img src="CrequeDesignFigure.png" alt="Alt Text" width="800" height="600">
 
 
 ### 1. Decouple acquisition from transmission
