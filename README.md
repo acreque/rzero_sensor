@@ -81,3 +81,123 @@ From top to bottom main.c contains:
 | Secure key provisioning | ATECC608 or NVS encrypted partition |
 | Unit tests | esp-idf-unity framework for queue boundary conditions |
 | Cloud deduplication | Receiver uses sequence_num to drop duplicate batches on retry |
+
+---
+
+## Circular Queue Demo (`circular_queue.py`)
+
+A small interactive Python script that visualizes the same fixed-size circular queue behavior described in Design Decision #2. It is a teaching/illustration aid — useful for sanity-checking the head/tail pointer logic and the "overwrite oldest on full" eviction policy used in `main.c`.
+
+### What it does
+- Implements a `CircularQueue` class with `enqueue`, `dequeue`, `peek`, `is_full`, and `is_empty`.
+- Uses static-style backing storage (a fixed-length list) with `head`, `tail`, and `count` indices — no dynamic growth.
+- On overflow, `enqueue` overwrites the oldest element and returns the evicted value, mirroring the firmware's eviction policy.
+- After every operation, prints an ASCII diagram showing slot positions, current contents, and the `H`/`T` pointers.
+
+### How to use
+Run the script with Python 3 (no dependencies required):
+
+```
+python3 circular_queue.py
+```
+
+At the `Command:` prompt:
+
+| Input | Action |
+|-------|--------|
+| an integer (e.g. `27`) | Enqueue that value |
+| one or more `-` (e.g. `---`) | Dequeue that many elements |
+| `p` | Peek — list live items in FIFO order without modifying the queue |
+| `q` (or `quit` / `exit`) | Exit the demo |
+
+### Example session
+```
+Circular Queue Demo (size = 4)
+Enter a number to enqueue it (e.g. 27).
+Enter one or more '-' to dequeue (e.g. --- dequeues 3 elements).
+Enter 'p' to peek (show live items in FIFO order).
+Enter 'q' to quit.
+
+Initial state:
+  positions:   0      1      2      3   
+  contents:  [ .  ] [ .  ] [ .  ] [ .  ]
+  pointers:   H/T
+  (count = 0)
+
+Command: 1
+  Enqueued 1.
+  positions:   0      1      2      3   
+  contents:  [ 1  ] [ .  ] [ .  ] [ .  ]
+  pointers:    H      T
+  (count = 1)
+
+Command: 2
+  Enqueued 2.
+  positions:   0      1      2      3   
+  contents:  [ 1  ] [ 2  ] [ .  ] [ .  ]
+  pointers:    H             T
+  (count = 2)
+
+Command: 3
+  Enqueued 3.
+  positions:   0      1      2      3   
+  contents:  [ 1  ] [ 2  ] [ 3  ] [ .  ]
+  pointers:    H                    T
+  (count = 3)
+
+Command: 4
+  Enqueued 4.
+  positions:   0      1      2      3   
+  contents:  [ 1  ] [ 2  ] [ 3  ] [ 4  ]
+  pointers:   H/T
+  (count = 4)
+
+Command: 5
+  Queue was full: overwrote 1 with 5.
+  positions:   0      1      2      3   
+  contents:  [ 5  ] [ 2  ] [ 3  ] [ 4  ]
+  pointers:          H/T
+  (count = 4)
+
+Command: 6
+  Queue was full: overwrote 2 with 6.
+  positions:   0      1      2      3   
+  contents:  [ 5  ] [ 6  ] [ 3  ] [ 4  ]
+  pointers:                 H/T
+  (count = 4)
+
+Command: -
+  Dequeued 3.
+  positions:   0      1      2      3   
+  contents:  [ 5  ] [ 6  ] [ .  ] [ 4  ]
+  pointers:                  T      H
+  (count = 3)
+
+Command: -
+  Dequeued 4.
+  positions:   0      1      2      3   
+  contents:  [ 5  ] [ 6  ] [ .  ] [ .  ]
+  pointers:    H             T
+  (count = 2)
+
+Command: -
+  Dequeued 5.
+  positions:   0      1      2      3   
+  contents:  [ .  ] [ 6  ] [ .  ] [ .  ]
+  pointers:           H      T
+  (count = 1)
+
+Command: -
+  Dequeued 6.
+  positions:   0      1      2      3   
+  contents:  [ .  ] [ .  ] [ .  ] [ .  ]
+  pointers:                 H/T
+  (count = 0)
+
+Command: -
+  Queue is empty! Cannot dequeue.
+  positions:   0      1      2      3   
+  contents:  [ .  ] [ .  ] [ .  ] [ .  ]
+  pointers:                 H/T
+  (count = 0)
+```
